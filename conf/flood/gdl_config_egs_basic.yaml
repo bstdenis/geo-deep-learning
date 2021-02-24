@@ -19,9 +19,6 @@ global:
   mlflow_uri: /wshare/travail/bdgrid2/EXTRACTION/Deep_learning/tmp_bgauvins/mlruns  # Default to ./mlruns
   mlflow_experiment_name: gdl-water
   mlflow_run_name: egs_basic
-  mlflow_tags:
-    images: RS2-full
-    targets: EGS-flood
   bucket_name:   # name of the S3 bucket where data is stored. Leave blank if using local files
   task: segmentation  # Task to perform. Either segmentation or classification
   num_gpus: 1

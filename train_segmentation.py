@@ -450,8 +450,7 @@ def main(params, config_path):
     # mlflow tracking path + parameters logging
     set_tracking_uri(get_key_def('mlflow_uri', params['global'], default="./mlruns"))
     set_experiment(get_key_def('mlflow_experiment_name', params['global'], default='gdl-training'))
-    start_run(run_name=get_key_def('mlflow_run_name', params['global'], default='gdl-run'),
-              tags=get_key_def('mlflow_tags', params['global'], default={}))
+    start_run(run_name=get_key_def('mlflow_run_name', params['global'], default='gdl-run'))
     log_params(params['training'])
     log_params(params['global'])
     log_params(params['sample'])
