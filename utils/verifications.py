@@ -85,6 +85,10 @@ def assert_crs_match(raster_path: Union[str, Path], gpkg_path: Union[str, Path])
     with rasterio.open(raster_path, 'r') as raster:
         raster_crs = raster.crs
 
+    if hasattr(raster_crs, 'data'):
+        raster_crs = raster_crs.data
+        del gpkg_crs['wktext']
+
     assert gpkg_crs == raster_crs, f"CRS mismatch: \n" \
                                    f"TIF file \"{raster_path}\" has {raster_crs} CRS; \n" \
                                    f"GPKG file \"{gpkg_path}\" has {src.crs} CRS."

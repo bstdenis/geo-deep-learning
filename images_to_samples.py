@@ -33,9 +33,10 @@ def mask_image(arrayA, arrayB):
     >>> x2 = np.array([1.5, 1.2, 1.6, 1.2, 11., 1.1, 25.9, 0.1], dtype=np.float32).reshape(2,2,2)
     >>> mask_image(x1, x2)
     array([[[ 0. ,  0. ],
-        [ 1.6,  1.2]],
-        [[11. ,  1.1],
-        [25.9,  0.1]]], dtype=float32)
+            [ 1.6,  1.2]],
+    <BLANKLINE>
+           [[ 0. ,  0. ],
+            [25.9,  0.1]]], dtype=float32)
     """
 
     # Handle arrayA of shapes (h,w,c) and (h,w)
@@ -377,6 +378,8 @@ def main(params):
     class_prop = validate_class_prop_dict(pixel_classes, class_prop)
     pixel_classes[dontcare] = 0
 
+    label_props = []
+
     # For each row in csv: (1) burn vector file to raster, (2) read input raster image, (3) prepare samples
     with tqdm(list_data_prep, position=0, leave=False, desc=f'Preparing samples') as _tqdm:
         for info in _tqdm:
@@ -406,7 +409,8 @@ def main(params):
                         aux_vector_ids=get_key_def('aux_vector_ids', params['global'], None),
                         aux_vector_dist_maps=get_key_def('aux_vector_dist_maps', params['global'], True),
                         aux_vector_dist_log=get_key_def('aux_vector_dist_log', params['global'], True),
-                        aux_vector_scale=get_key_def('aux_vector_scale', params['global'], None))
+                        aux_vector_scale=get_key_def('aux_vector_scale', params['global'], None),
+                        debug=debug)
 
                     # 2. Burn vector file in a raster file
                     np_label_raster = vector_to_raster(vector_file=info['gpkg'],
@@ -462,6 +466,12 @@ def main(params):
                                                           enumerate(np.bincount(np_label_raster.clip(min=0).flatten()))
                                                      if count > 0}  # TODO: add this to add_metadata_from[...] function?
 
+                if debug:
+                    label_props.append({str(k): metadata[k] for k in ('name', 'source_label_bincount')})
+                    label_props[-1]['source_label_bincount'].update(
+                        {k: int(v) for k, v in label_props[-1]['source_label_bincount'].items()})
+
+
                 np_label_raster = np.reshape(np_label_raster, (np_label_raster.shape[0], np_label_raster.shape[1], 1))
                 # 3. Prepare samples!
                 number_samples, number_classes = samples_preparation(in_img_array=np_input_image,
@@ -508,6 +518,14 @@ def main(params):
         bucket.upload_file(samples_folder + "/trn_samples.hdf5", final_samples_folder + '/trn_samples.hdf5')
         bucket.upload_file(samples_folder + "/val_samples.hdf5", final_samples_folder + '/val_samples.hdf5')
         bucket.upload_file(samples_folder + "/tst_samples.hdf5", final_samples_folder + '/tst_samples.hdf5')
+
+    if debug:
+        import json
+        import pandas
+        with open(Path(data_path, 'label_prop.json'), 'w') as label_prop_obj:
+            label_prop_obj.write(json.dumps(label_props))
+        json_df = pandas.read_json(json.dumps(label_props))
+        json_df.to_csv(Path(data_path, 'label_prop.csv'))
 
     print("End of process")
 

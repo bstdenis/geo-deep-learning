@@ -63,7 +63,11 @@ def clip_raster_with_gpkg(raster, gpkg, debug=False):
     # Get extent of gpkg data with fiona
     with fiona.open(gpkg, 'r') as src:
         gpkg_crs = src.crs
-        assert gpkg_crs == raster.crs
+        raster_crs = raster.crs
+        if hasattr(raster_crs, 'data'):
+            raster_crs = raster.crs.data
+            del gpkg_crs['wktext']
+        assert gpkg_crs == raster_crs
         minx, miny, maxx, maxy = src.bounds  # ouest, nord, est, sud
 
     # Create a bounding box with Shapely

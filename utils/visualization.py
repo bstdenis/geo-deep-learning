@@ -132,7 +132,10 @@ def vis(params, input_, output, vis_path, sample_num=0, label=None, dataset='', 
         input_ = np.squeeze(input_)
     elif input_.shape[2] >= 3:
         input_ = input_[:, :, :3]  # take three first bands assuming they are RGB in correct order
-    mode = 'L' if input_.shape[2] == 1 else 'RGB' # https://pillow.readthedocs.io/en/3.1.x/handbook/concepts.html#concept-modes
+    if len(input_.shape) == 3:
+        mode = 'L' if input_.shape[2] == 1 else 'RGB' # https://pillow.readthedocs.io/en/3.1.x/handbook/concepts.html#concept-modes
+    else:
+        mode = 'L'
     input_PIL = Image.fromarray(input_.astype(np.uint8), mode=mode)  # TODO: test this with grayscale input.
 
     # Give value of class to band with highest value in final inference
