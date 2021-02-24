@@ -87,7 +87,8 @@ def assert_crs_match(raster_path: Union[str, Path], gpkg_path: Union[str, Path])
 
     if hasattr(raster_crs, 'data'):
         raster_crs = raster_crs.data
-        del gpkg_crs['wktext']
+        if 'wktext' in gpkg_crs:
+            del gpkg_crs['wktext']
 
     assert gpkg_crs == raster_crs, f"CRS mismatch: \n" \
                                    f"TIF file \"{raster_path}\" has {raster_crs} CRS; \n" \
