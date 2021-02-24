@@ -14,8 +14,13 @@ global:
   data_path: /home/bgauvins/projects/flood/results/gdl/
   number_of_bands: 2
   # Model available: unet, unetsmall, checkpointed_unet, ternausnet, fcn_resnet101, deeplabv3_resnet50, deeplabv3_resnet101
-  model_name: unet
+  model_name: unetsmall
   mlflow_uri: /home/bgauvins/projects/flood/results/gdl/mlruns  # Default to ./mlruns
+  mlflow_experiment_name: gdl-water
+  mlflow_run_name: egs_basic
+  mlflow_tags:
+    images: RS2-full
+    targets: EGS-flood
   bucket_name:   # name of the S3 bucket where data is stored. Leave blank if using local files
   task: segmentation  # Task to perform. Either segmentation or classification
   num_gpus: 1
@@ -30,6 +35,8 @@ global:
   debug_mode: True
   coordconv_convert: False
   coordvonc_scale:
+  max_used_ram: 3000
+  max_used_perc: 50
 
 
 # Data analysis parameters; used in data_analysis.py ------------------
@@ -66,7 +73,7 @@ training:
   target_size: 256
   # Loss function available: CrossEntropy, Lovasz, Focal, OhemCrossEntropy
   #                          (*Lovasz for segmentation tasks only)
-  loss_fn: CrossEntropy
+  loss_fn: Lovasz
   # Optimizer available: adam. sgd, adabound
   optimizer: adabound
   learning_rate: 0.0001
@@ -111,8 +118,8 @@ training:
 
 # Inference parameters; used in inference.py --------
 inference:
-  img_dir_or_csv_file: /home/gort/projects/mila/nrcan/results/preprocessing/inference_sem_seg_ci_csv.csv
-  state_dict_path: /home/gort/projects/mila/nrcan/results/gdl/samples512_overlap25_min-annot0_3bands/model/config/checkpoint.pth.tar
+  img_dir_or_csv_file: /home/bgauvins/projects/flood/results/preprocessing/inference_sem_seg_ci_csv.csv
+  state_dict_path: /home/bgauvins/projects/flood/results/gdl/samples512_overlap25_min-annot0_3bands/model/config/checkpoint.pth.tar
   chunk_size: 512 # (int) Size (height and width) of each prediction patch. Default: 512
   overlap: 10 # (int) Percentage of overlap between 2 chunks. Default: 10
   heatmaps: True
