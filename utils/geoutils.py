@@ -66,7 +66,8 @@ def clip_raster_with_gpkg(raster, gpkg, debug=False):
         raster_crs = raster.crs
         if hasattr(raster_crs, 'data'):
             raster_crs = raster.crs.data
-            del gpkg_crs['wktext']
+            if 'wktext' in gpkg_crs:
+                del gpkg_crs['wktext']
         assert gpkg_crs == raster_crs
         minx, miny, maxx, maxy = src.bounds  # ouest, nord, est, sud
 
