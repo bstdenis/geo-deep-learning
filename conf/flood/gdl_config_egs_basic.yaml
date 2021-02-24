@@ -15,7 +15,8 @@ global:
   number_of_bands: 2
   # Model available: unet, unetsmall, checkpointed_unet, ternausnet, fcn_resnet101, deeplabv3_resnet50, deeplabv3_resnet101
   model_name: unetsmall
-  mlflow_uri: /home/bgauvins/projects/flood/results/gdl/mlruns  # Default to ./mlruns
+  # mlflow_uri: /home/bgauvins/projects/flood/results/gdl/mlruns  # Default to ./mlruns
+  mlflow_uri: /wshare/travail/bdgrid2/EXTRACTION/Deep_learning/tmp_bgauvins/mlruns  # Default to ./mlruns
   mlflow_experiment_name: gdl-water
   mlflow_run_name: egs_basic
   mlflow_tags:
