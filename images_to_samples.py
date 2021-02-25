@@ -522,10 +522,13 @@ def main(params):
     if debug:
         import json
         import pandas
-        with open(Path(data_path, 'label_prop.json'), 'w') as label_prop_obj:
+        with open(Path(data_path, f'label_prop_{run_name}.json'), 'w') as label_prop_obj:
             label_prop_obj.write(json.dumps(label_props))
         json_df = pandas.read_json(json.dumps(label_props))
-        json_df.to_csv(Path(data_path, 'label_prop.csv'))
+        json_df.to_csv(Path(data_path, f'label_prop_{run_name}.csv'))
+
+        with open(Path(data_path, f'num_samples_{run_name}.json'), 'w') as num_samples_obj:
+            num_samples_obj.write(json.dumps(number_samples))
 
     print("End of process")
 
