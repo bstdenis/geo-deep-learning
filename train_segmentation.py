@@ -450,7 +450,8 @@ def main(params, config_path):
     # mlflow tracking path + parameters logging
     set_tracking_uri(get_key_def('mlflow_uri', params['global'], default="./mlruns"))
     set_experiment(get_key_def('mlflow_experiment_name', params['global'], default='gdl-training'))
-    start_run(run_name=get_key_def('mlflow_run_name', params['global'], default='gdl-run'))
+    run_name = get_key_def('mlflow_run_name', params['global'], default='gdl')
+    start_run(run_name=run_name)
     log_params(params['training'])
     log_params(params['global'])
     log_params(params['sample'])
@@ -459,7 +460,8 @@ def main(params, config_path):
     overlap = params["sample"]["overlap"]
     min_annot_perc = get_key_def('min_annotated_percent', params['sample']['sampling_method'], 0, expected_type=int)
     num_bands = params['global']['number_of_bands']
-    samples_folder_name = f'samples{samples_size}_overlap{overlap}_min-annot{min_annot_perc}_{num_bands}bands'  # FIXME: won't check if folder has datetime suffix (if multiple folders)
+    samples_folder_name = (f'samples{samples_size}_overlap{overlap}_min-annot{min_annot_perc}_{num_bands}bands'
+                           f'_{run_name}')
     samples_folder = data_path.joinpath(samples_folder_name)
 
     modelname = config_path.stem
