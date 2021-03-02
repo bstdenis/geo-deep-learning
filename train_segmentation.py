@@ -256,6 +256,11 @@ def train(train_loader,
     vis_at_train = get_key_def('vis_at_train', vis_params['visualization'], False)
     vis_batch_range = get_key_def('vis_batch_range', vis_params['visualization'], None)
 
+    in_img_all_1 = []
+    in_img_all_0 = []
+    in_label_all_0 = []
+    in_label_has_255 = []
+
     with tqdm(train_loader, desc=f'Iterating train batches with {device.type}') as _tqdm:
         for batch_index, data in enumerate(_tqdm):
             progress_log.open('a', buffering=1).write(tsv_line(ep_idx, 'trn', batch_index, len(train_loader), time.time()))
@@ -299,6 +304,9 @@ def train(train_loader,
                                    ep_num=ep_idx+1)
 
             loss = criterion(outputs, labels)
+            if debug:
+                if not 0 <= loss <= 40.0:
+                    print('lala')
 
             train_metrics['loss'].update(loss.item(), batch_size)
 
@@ -314,6 +322,24 @@ def train(train_loader,
                         smpl=data['map_img'].numpy().shape,
                         bs=batch_size,
                         out_vals=np.unique(outputs[0].argmax(dim=0).detach().cpu().numpy())))
+
+            previous_loss = loss.cpu()
+            previous_inputs = inputs.cpu()
+            previous_labels = labels.cpu()
+            previous_outputs = outputs.cpu()
+
+            if previous_inputs.max().numpy() == 0.0:
+                in_img_all_0.append(0)
+            elif previous_inputs.min().numpy() == 1.0:
+                in_img_all_1.append(0)
+            if previous_labels.max().numpy() == 0:
+                in_label_all_0.append(0)
+            elif previous_labels.max().numpy() == 255:
+                in_label_has_255.append(0)
+
+            for my_arr in [in_img_all_0, in_img_all_1, in_label_all_0, in_label_has_255]:
+                for j in range(len(my_arr)):
+                    my_arr[j] = my_arr[j] + 1
 
             loss.backward()
             optimizer.step()
