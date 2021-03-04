@@ -478,6 +478,8 @@ def main(params, config_path):
     log_params(params['training'])
     log_params(params['global'])
     log_params(params['sample'])
+    log_artifact(config_path)
+    log_artifact(params['sample']['prep_csv_file'])
 
     modelname = config_path.stem
     output_path = samples_folder.joinpath('model') / modelname
