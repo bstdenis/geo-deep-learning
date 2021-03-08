@@ -486,7 +486,7 @@ def main(params, config_path):
     log_metric('num_train_sample', len(trn_dataloader) * trn_dataloader.batch_size)
     log_metric('num_val_sample', len(val_dataloader) * val_dataloader.batch_size)
     log_metric('num_test_sample', len(tst_dataloader) * tst_dataloader.batch_size)
-    config_name = Path(params['config_file']).name.replace('.yaml', '')
+    config_name = Path(params['self']['config_file']).name.replace('.yaml', '')
     label_prop_file = Path(data_path, f'label_prop_{config_name}.json')
     if label_prop_file.is_file:
         with open(label_prop_file, 'r') as label_prop_obj:
@@ -661,7 +661,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config_path = Path(args.param_file)
     params = read_parameters(args.param_file)
-    params['config_file'] = args.param_file
+    params['self'] = {'config_file': args.param_file}
 
     # Limit of the NIR implementation TODO: Update after each version
     modalities = None if 'modalities' not in params['global'] else params['global']['modalities']
