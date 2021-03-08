@@ -556,12 +556,13 @@ def main(params):
     if debug:
         import json
         import pandas
-        with open(Path(data_path, f'label_prop_{run_name}.json'), 'w') as label_prop_obj:
+        config_name = Path(params['config_file']).name.replace('.yaml', '')
+        with open(Path(data_path, f'label_prop_{config_name}.json'), 'w') as label_prop_obj:
             label_prop_obj.write(json.dumps(label_props))
         json_df = pandas.read_json(json.dumps(label_props))
-        json_df.to_csv(Path(data_path, f'label_prop_{run_name}.csv'))
+        json_df.to_csv(Path(data_path, f'label_prop_{config_name}.csv'))
 
-        with open(Path(data_path, f'num_samples_{run_name}.json'), 'w') as num_samples_obj:
+        with open(Path(data_path, f'num_samples_{config_name}.json'), 'w') as num_samples_obj:
             num_samples_obj.write(json.dumps(number_samples))
 
     print("End of process")
@@ -573,6 +574,7 @@ if __name__ == '__main__':
                         help='Path to training parameters stored in yaml')
     args = parser.parse_args()
     params = read_parameters(args.ParamFile)
+    params['config_file'] = args.ParamFile
     start_time = time.time()
     tqdm.write(f'\n\nStarting images to samples preparation with {args.ParamFile}\n\n')
     main(params)

@@ -1,6 +1,7 @@
 import torch
 # import torch should be first. Unclear issue, mentioned here: https://github.com/pytorch/pytorch/issues/2083
 import argparse
+import json
 from pathlib import Path
 import time
 import h5py
@@ -26,7 +27,7 @@ from models.model_choice import net, load_checkpoint
 from utils.utils import load_from_checkpoint, get_device_ids, gpu_stats, get_key_def
 from utils.visualization import vis_from_batch
 from utils.readers import read_parameters
-from mlflow import log_params, set_tracking_uri, set_experiment, log_artifact, start_run
+from mlflow import log_params, set_tracking_uri, set_experiment, log_artifact, start_run, log_metric
 
 
 def flatten_labels(annotations):
@@ -480,6 +481,25 @@ def main(params, config_path):
     log_params(params['sample'])
     log_artifact(config_path)
     log_artifact(params['sample']['prep_csv_file'])
+    log_metric('num_train_sample', len(trn_dataloader) * trn_dataloader.batch_size)
+    log_metric('num_val_sample', len(val_dataloader) * val_dataloader.batch_size)
+    log_metric('num_test_sample', len(tst_dataloader) * tst_dataloader.batch_size)
+    config_name = Path(params['config_file']).name.replace('.yaml', '')
+    label_prop_file = Path(data_path, f'label_prop_{config_name}.json')
+    if label_prop_file.is_file:
+        with open(label_prop_file, 'r') as label_prop_obj:
+            label_props = json.loads(label_prop_obj.read())
+            ddd = {}
+            for label_prop in label_props[1:]:
+                for key, val in label_prop['source_label_bincount'].items():
+                    label_props[0]['source_label_bincount'][key] += val
+            total = 0
+            for key, val in label_props[0]['source_label_bincount'].items():
+                total += val
+            for key, val in label_props[0]['source_label_bincount'].items():
+                log_metric(f'label_prop_{key}', label_props[0]['source_label_bincount'][key] / total)
+
+
 
     modelname = config_path.stem
     output_path = samples_folder.joinpath('model') / modelname
@@ -649,6 +669,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config_path = Path(args.param_file)
     params = read_parameters(args.param_file)
+    params['config_file'] = args.param_file
 
     # Limit of the NIR implementation TODO: Update after each version
     modalities = None if 'modalities' not in params['global'] else params['global']['modalities']
