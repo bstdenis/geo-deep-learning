@@ -362,7 +362,8 @@ def main(params: dict):
                                      "height": pred.shape[1],
                                      "width": pred.shape[2],
                                      "count": pred.shape[0],
-                                     "dtype": 'uint8'})
+                                     "dtype": 'uint8',
+                                     "nodata": 255})
 
                     with rasterio.open(inference_image, 'w+', **inf_meta) as dest:
                         dest.write(pred)
