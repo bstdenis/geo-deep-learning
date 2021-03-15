@@ -492,10 +492,9 @@ def main(params):
                                                           enumerate(np.bincount(np_label_raster.clip(min=0).flatten()))
                                                      if count > 0}  # TODO: add this to add_metadata_from[...] function?
 
-                if debug:
-                    label_props.append({str(k): metadata[k] for k in ('name', 'source_label_bincount')})
-                    label_props[-1]['source_label_bincount'].update(
-                        {k: int(v) for k, v in label_props[-1]['source_label_bincount'].items()})
+                label_props.append({str(k): metadata[k] for k in ('name', 'source_label_bincount')})
+                label_props[-1]['source_label_bincount'].update(
+                    {k: int(v) for k, v in label_props[-1]['source_label_bincount'].items()})
 
 
                 np_label_raster = np.reshape(np_label_raster, (np_label_raster.shape[0], np_label_raster.shape[1], 1))
@@ -545,17 +544,16 @@ def main(params):
         bucket.upload_file(samples_folder + "/val_samples.hdf5", final_samples_folder + '/val_samples.hdf5')
         bucket.upload_file(samples_folder + "/tst_samples.hdf5", final_samples_folder + '/tst_samples.hdf5')
 
-    if debug:
-        import json
-        import pandas
-        config_name = Path(params['self']['config_file']).name.replace('.yaml', '')
-        with open(Path(data_path, f'label_prop_{config_name}.json'), 'w') as label_prop_obj:
-            label_prop_obj.write(json.dumps(label_props))
-        json_df = pandas.read_json(json.dumps(label_props))
-        json_df.to_csv(Path(data_path, f'label_prop_{config_name}.csv'))
+    import json
+    import pandas
+    config_name = Path(params['self']['config_file']).name.replace('.yaml', '')
+    with open(Path(data_path, f'label_prop_{config_name}.json'), 'w') as label_prop_obj:
+        label_prop_obj.write(json.dumps(label_props))
+    json_df = pandas.read_json(json.dumps(label_props))
+    json_df.to_csv(Path(data_path, f'label_prop_{config_name}.csv'))
 
-        with open(Path(data_path, f'num_samples_{config_name}.json'), 'w') as num_samples_obj:
-            num_samples_obj.write(json.dumps(number_samples))
+    with open(Path(data_path, f'num_samples_{config_name}.json'), 'w') as num_samples_obj:
+        num_samples_obj.write(json.dumps(number_samples))
 
     print("End of process")
 
