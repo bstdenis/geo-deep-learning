@@ -546,13 +546,12 @@ def main(params):
 
     import json
     import pandas
-    config_name = Path(params['self']['config_file']).name.replace('.yaml', '')
-    with open(Path(data_path, f'label_prop_{config_name}.json'), 'w') as label_prop_obj:
+    with open(Path(samples_folder, f'label_prop.json'), 'w') as label_prop_obj:
         label_prop_obj.write(json.dumps(label_props))
     json_df = pandas.read_json(json.dumps(label_props))
-    json_df.to_csv(Path(data_path, f'label_prop_{config_name}.csv'))
+    json_df.to_csv(Path(samples_folder, f'label_prop.csv'))
 
-    with open(Path(data_path, f'num_samples_{config_name}.json'), 'w') as num_samples_obj:
+    with open(Path(samples_folder, f'num_samples.json'), 'w') as num_samples_obj:
         num_samples_obj.write(json.dumps(number_samples))
 
     print("End of process")
