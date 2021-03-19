@@ -64,7 +64,8 @@ def create_dataloader(samples_folder, batch_size, num_devices, params):
     assert samples_folder.is_dir(), f'Could not locate: {samples_folder}'
     assert len([f for f in samples_folder.glob('**/*.hdf5')]) >= 1, f"Couldn't locate .hdf5 files in {samples_folder}"
     num_samples, samples_weight = get_num_samples(samples_path=samples_folder, params=params)
-    assert num_samples['trn'] >= batch_size and num_samples['val'] >= batch_size, f"Number of samples in .hdf5 files is less than batch size"
+    assert num_samples['trn'] >= batch_size and num_samples['val'] >= batch_size, \
+        f"Number of samples in .hdf5 files is less than batch size"
     print(f"Number of samples : {num_samples}\n")
     meta_map = get_key_def("meta_map", params["global"], {})
     num_bands = get_key_def("number_of_bands", params["global"], {})
@@ -138,11 +139,13 @@ def get_num_samples(samples_path, params):
 
 def vis_from_dataloader(params, eval_loader, model, ep_num, output_path, dataset='', device=None, vis_batch_range=None):
     """
-    Use a model and dataloader to provide outputs that can then be sent to vis_from_batch function to visualize performances of model, for example.
+    Use a model and dataloader to provide outputs that can then be sent to vis_from_batch function to visualize
+    performances of model, for example.
     :param params: (dict) Parameters found in the yaml config file.
     :param eval_loader: data loader
     :param model: model to evaluate
     :param ep_num: epoch index (for file naming purposes)
+    :param output_path: path where the visualization will be written
     :param dataset: (str) 'val or 'tst'
     :param device: device used by pytorch (cpu ou cuda)
     :param vis_batch_range: (int) max number of samples to perform visualization on
@@ -216,7 +219,8 @@ def train(train_loader,
 
     with tqdm(train_loader, desc=f'Iterating train batches with {device.type}') as _tqdm:
         for batch_index, data in enumerate(_tqdm):
-            progress_log.open('a', buffering=1).write(tsv_line(ep_idx, 'trn', batch_index, len(train_loader), time.time()))
+            progress_log.open('a', buffering=1).write(
+                tsv_line(ep_idx, 'trn', batch_index, len(train_loader), time.time()))
 
             inputs = data['sat_img'].to(device)
             labels = data['map_img'].to(device)
@@ -227,9 +231,9 @@ def train(train_loader,
                 ############################
                 # TODO: remove after the merge of Remy branch with no visualization option
                 # TODO: or change it to match the reste of the implementation
-                inputs_NIR = inputs[:,-1,...] # Need to be change for a more elegant way
-                inputs_NIR.unsqueeze_(1) # add a channel to get [:, 1, :, :]
-                inputs = inputs[:,:-1, ...] # Need to be change
+                inputs_NIR = inputs[:,-1,...]  # Need to be change for a more elegant way
+                inputs_NIR.unsqueeze_(1)  # add a channel to get [:, 1, :, :]
+                inputs = inputs[:,:-1,...]  # Need to be change
                 inputs = [inputs, inputs_NIR]
                 ############################
                 # Test Implementation of the NIR
@@ -248,7 +252,8 @@ def train(train_loader,
                 if batch_index in range(min_vis_batch, max_vis_batch, increment):
                     vis_path = progress_log.parent.joinpath('visualization')
                     if ep_idx == 0:
-                        tqdm.write(f'Visualizing on train outputs for batches in range {vis_batch_range}. All images will be saved to {vis_path}\n')
+                        tqdm.write((f'Visualizing on train outputs for batches in range {vis_batch_range}. '
+                                    f'All images will be saved to {vis_path}\n'))
                     vis_from_batch(params, inputs, outputs,
                                    batch_index=batch_index,
                                    vis_path=vis_path,
@@ -301,7 +306,8 @@ def train(train_loader,
     return train_metrics
 
 
-def evaluation(eval_loader, model, criterion, num_classes, batch_size, ep_idx, progress_log, vis_params, batch_metrics=None, dataset='val', device=None, debug=False):
+def evaluation(eval_loader, model, criterion, num_classes, batch_size, ep_idx, progress_log, vis_params,
+               batch_metrics=None, dataset='val', device=None, debug=False):
     """
     Evaluate the model and return the updated metrics
     :param eval_loader: data loader
@@ -323,7 +329,8 @@ def evaluation(eval_loader, model, criterion, num_classes, batch_size, ep_idx, p
 
     with tqdm(eval_loader, dynamic_ncols=True, desc=f'Iterating {dataset} batches with {device.type}') as _tqdm:
         for batch_index, data in enumerate(_tqdm):
-            progress_log.open('a', buffering=1).write(tsv_line(ep_idx, dataset, batch_index, len(eval_loader), time.time()))
+            progress_log.open('a', buffering=1).write(
+                tsv_line(ep_idx, dataset, batch_index, len(eval_loader), time.time()))
 
             with torch.no_grad():
                 inputs = data['sat_img'].to(device)
@@ -336,9 +343,9 @@ def evaluation(eval_loader, model, criterion, num_classes, batch_size, ep_idx, p
                     ############################
                     # TODO: remove after the merge of Remy branch with no visualization option
                     # TODO: or change it to match the reste of the implementation
-                    inputs_NIR = inputs[:,-1,...] # Need to be change for a more elegant way
-                    inputs_NIR.unsqueeze_(1) # add a channel to get [:, 1, :, :]
-                    inputs = inputs[:,:-1, ...] # Need to be change
+                    inputs_NIR = inputs[:,-1,...]  # Need to be change for a more elegant way
+                    inputs_NIR.unsqueeze_(1)  # add a channel to get [:, 1, :, :]
+                    inputs = inputs[:,:-1,...]  # Need to be change
                     inputs = [inputs, inputs_NIR]
                     ############################
                     # Test Implementation of the NIR
@@ -433,7 +440,8 @@ def main(params, config_path):
     params['global']['git_hash'] = get_git_hash()
     debug = get_key_def('debug_mode', params['global'], False)
     if debug:
-        warnings.warn(f'Debug mode activated. Some debug features may mobilize extra disk space and cause delays in execution.')
+        warnings.warn(
+            f'Debug mode activated. Some debug features may mobilize extra disk space and cause delays in execution.')
 
     now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     num_classes = params['global']['num_classes']
@@ -469,7 +477,8 @@ def main(params, config_path):
                                                                        num_devices=num_devices,
                                                                        params=params)
     # INSTANTIATE MODEL AND LOAD CHECKPOINT FROM PATH
-    model, model_name, criterion, optimizer, lr_scheduler = net(params, num_classes_corrected)  # pretrained could become a yaml parameter.
+    model, model_name, criterion, optimizer, lr_scheduler = net(params, num_classes_corrected)
+    # pretrained could become a yaml parameter.
     tqdm.write(f'Instantiated {model_name} model with {num_classes_corrected} output channels.\n')
     bucket_name = get_key_def('bucket_name', params['global'])
 
@@ -497,8 +506,6 @@ def main(params, config_path):
                 total += val
             for key, val in label_props[0]['source_label_bincount'].items():
                 log_metric(f'label_prop_{key}', label_props[0]['source_label_bincount'][key] / total)
-
-
 
     modelname = config_path.stem
     output_path = samples_folder.joinpath('model') / modelname
@@ -530,13 +537,16 @@ def main(params, config_path):
     # VISUALIZATION: generate pngs of inputs, labels and outputs
     vis_batch_range = get_key_def('vis_batch_range', params['visualization'], None)
     if vis_batch_range is not None:
-        # Make sure user-provided range is a tuple with 3 integers (start, finish, increment). Check once for all visualization tasks.
-        assert isinstance(vis_batch_range, list) and len(vis_batch_range) == 3 and all(isinstance(x, int) for x in vis_batch_range)
+        # Make sure user-provided range is a tuple with 3 integers (start, finish, increment).
+        # Check once for all visualization tasks.
+        assert isinstance(vis_batch_range, list) and len(vis_batch_range) == 3 and \
+               all(isinstance(x, int) for x in vis_batch_range)
         vis_at_init_dataset = get_key_def('vis_at_init_dataset', params['visualization'], 'val')
 
         # Visualization at initialization. Visualize batch range before first eopch.
         if get_key_def('vis_at_init', params['visualization'], False):
-            tqdm.write(f'Visualizing initialized model on batch range {vis_batch_range} from {vis_at_init_dataset} dataset...\n')
+            tqdm.write((f'Visualizing initialized model on batch range {vis_batch_range} from '
+                        f'{vis_at_init_dataset} dataset...\n'))
             vis_from_dataloader(params=params,
                                 eval_loader=val_dataloader if vis_at_init_dataset == 'val' else tst_dataloader,
                                 model=model,
@@ -584,7 +594,8 @@ def main(params, config_path):
         if val_loss < best_loss:
             tqdm.write("save checkpoint\n")
             best_loss = val_loss
-            # More info: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-torch-nn-dataparallel-models
+            # More info:
+            # https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-torch-nn-dataparallel-models
             state_dict = model.module.state_dict() if num_devices > 1 else model.state_dict()
             torch.save({'epoch': epoch,
                         'params': params,
@@ -597,7 +608,8 @@ def main(params, config_path):
                 bucket_filename = bucket_output_path.joinpath('checkpoint.pth.tar')
                 bucket.upload_file(filename, bucket_filename)
 
-            # VISUALIZATION: generate png of test samples, labels and outputs for visualisation to follow training performance
+            # VISUALIZATION: generate png of test samples, labels and outputs for visualisation to follow
+            # training performance
             vis_at_checkpoint = get_key_def('vis_at_checkpoint', params['visualization'], False)
             ep_vis_min_thresh = get_key_def('vis_at_ckpt_min_ep_diff', params['visualization'], 4)
             vis_at_ckpt_dataset = get_key_def('vis_at_ckpt_dataset', params['visualization'], 'val')
@@ -662,9 +674,9 @@ if __name__ == '__main__':
     modalities = None if 'modalities' not in params['global'] else params['global']['modalities']
     if 'deeplabv3' not in params['global']['model_name'] and modalities == 'RGBN':
         print(
-            '\n The NIR modality will only be concatenate at the begining,' /
-            ' the implementation of the concatenation point is only available' /
-            ' for the deeplabv3 model for now. \n More will follow on demande.\n'
+            ('\n The NIR modality will only be concatenate at the begining,'
+             ' the implementation of the concatenation point is only available'
+             ' for the deeplabv3 model for now. \n More will follow on demande.\n')
              )
 
     main(params, config_path)
