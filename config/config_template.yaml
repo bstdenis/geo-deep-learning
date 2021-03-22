@@ -18,8 +18,8 @@ global:
   # See models/README.md for all the available models.
   model_name: unet
   mlflow_uri: ./mlruns  # path/to/mlflow_tracking_uri
-  mlflow_experiment_name: gdl-training
-  mlflow_run_name: gdl  # also used for naming of preprocessing directories
+  mlflow_experiment_name: gdl-training  # also used for naming of preprocessing directories
+  mlflow_run_name: gdl
   bucket_name:  # name of the S3 bucket where data is stored. Leave blank if using local files
   task: segmentation  # Task to perform. Either segmentation or classification
   num_gpus: 0  # If 0, will run on CPU
@@ -118,11 +118,6 @@ inference:
   img_dir_or_csv_file: # /path/to/csv/containing/images/list.csv
   state_dict_path: # optional: /path/to/model/weights/for/inference/checkpoint.pth.tar
   chunk_size: 512 # (int) Size (height and width) of each prediction patch. Default: 512
-  overlap: 10 # (int) Percentage of overlap between 2 chunks. Default: 10
-  heatmaps: True
-  # Visualization parameters
-  smooth_prediction: True
-  overlap: 2 # overlap between tiles for smoothing. Must be an even number that divides chunk_size without remainder.
 
 
 # Visualization parameters

@@ -215,13 +215,15 @@ def samples_preparation(in_img_array,
                 data_row = data.shape[0]
                 data_col = data.shape[1]
                 if data_row < sample_size or data_col < sample_size:
-                    padding = pad_diff(data_row, data_col, sample_size)  # array, actual height, actual width, desired size
+                    padding = pad_diff(data_row, data_col, sample_size,
+                                       sample_size)  # array, actual height, actual width, desired size
                     data = pad(data, padding, fill=np.nan)  # don't fill with 0 if possible. Creates false min value when scaling.
 
                 target_row = target.shape[0]
                 target_col = target.shape[1]
                 if target_row < sample_size or target_col < sample_size:
-                    padding = pad_diff(target_row, target_col, sample_size)  # array, actual height, actual width, desired size
+                    padding = pad_diff(target_row, target_col, sample_size,
+                                       sample_size)  # array, actual height, actual width, desired size
                     target = pad(target, padding, fill=dontcare)
                 u, count = np.unique(target, return_counts=True)
                 target_background_percent = round(count[0] / np.sum(count) * 100 if 0 in u else 0, 1)
@@ -329,8 +331,9 @@ def main(params):
 
     final_samples_folder = None
 
-    run_name = get_key_def('mlflow_run_name', params['global'], default='gdl')
-    sample_path_name = f'samples{samples_size}_overlap{overlap}_min-annot{min_annot_perc}_{num_bands}bands_{run_name}'
+    experiment_name = get_key_def('mlflow_experiment_name', params['global'], default='gdl-training')
+    sample_path_name = (f'samples{samples_size}_overlap{overlap}_min-annot{min_annot_perc}_'
+                        f'{num_bands}bands_{experiment_name}')
 
     # AWS
     if bucket_name:
@@ -353,7 +356,7 @@ def main(params):
             # Move existing data folder with a random suffix.
             shutil.move(samples_folder, f'{str(samples_folder)}_{uuid.uuid4().hex[0:6]}')
         else:
-            raise FileExistsError(f'Data path exists: {samples_folder}. Remove it or use a different run_name.')
+            raise FileExistsError(f'Data path exists: {samples_folder}. Remove it or use a different experiment_name.')
     else:
         tqdm.write(f'Writing samples to {samples_folder}')
     Path.mkdir(samples_folder, exist_ok=False)  # TODO: what if we want to append samples to existing hdf5?
