@@ -491,7 +491,11 @@ def main(params, config_path):
     log_params(params['global'])
     log_params(params['sample'])
     log_artifact(config_path)
-    log_artifact(params['sample']['prep_csv_file'])
+    mlflow_experiment_name = get_key_def('mlflow_experiment_name', params['global'], 'gdl-training')
+    default_csv_file = Path(get_key_def('preprocessing_path', params['global'], ''),
+                            mlflow_experiment_name,
+                            f"images_to_samples_{mlflow_experiment_name}.csv")
+    log_artifact(get_key_def('prep_csv_file', params['sample'], default_csv_file))
     log_metric('num_train_sample', len(trn_dataloader) * trn_dataloader.batch_size)
     log_metric('num_val_sample', len(val_dataloader) * val_dataloader.batch_size)
     log_metric('num_test_sample', len(tst_dataloader) * tst_dataloader.batch_size)

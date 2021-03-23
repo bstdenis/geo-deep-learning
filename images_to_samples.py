@@ -319,7 +319,12 @@ def main(params):
     bucket_name = get_key_def('bucket_name', params['global'])
     data_path = Path(params['global']['data_path'])
     Path.mkdir(data_path, exist_ok=True, parents=True)
-    csv_file = params['sample']['prep_csv_file']
+    # csv_file = params['sample']['prep_csv_file']
+    mlflow_experiment_name = get_key_def('mlflow_experiment_name', params['global'], 'gdl-training')
+    default_csv_file = Path(get_key_def('preprocessing_path', params['global'], ''),
+                            mlflow_experiment_name,
+                            f"images_to_samples_{mlflow_experiment_name}.csv")
+    csv_file = get_key_def('prep_csv_file', params['sample'], default_csv_file)
     val_percent = params['sample']['val_percent']
     samples_size = params["global"]["samples_size"]
     overlap = params["sample"]["overlap"]
@@ -438,7 +443,8 @@ def main(params):
                         aux_vector_dist_maps=get_key_def('aux_vector_dist_maps', params['global'], True),
                         aux_vector_dist_log=get_key_def('aux_vector_dist_log', params['global'], True),
                         aux_vector_scale=get_key_def('aux_vector_scale', params['global'], None),
-                        debug=debug)
+                        debug=debug,
+                        debug_output=samples_folder)
 
                     # 2. Burn vector file in a raster file
                     np_label_raster = vector_to_raster(vector_file=info['gpkg'],

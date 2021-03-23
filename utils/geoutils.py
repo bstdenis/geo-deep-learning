@@ -52,11 +52,12 @@ def getFeatures(gdf):
     return [json.loads(gdf.to_json())['features'][0]['geometry']]
 
 
-def clip_raster_with_gpkg(raster, gpkg, debug=False):
+def clip_raster_with_gpkg(raster, gpkg, debug=False, debug_output=''):
     """Clips input raster to limits of vector data in gpkg. Adapted from: https://automating-gis-processes.github.io/CSC18/lessons/L6/clipping-raster.html
     raster: Rasterio file handle holding the (already opened) input raster
     gpkg: Path and name of reference GeoPackage
     debug: if True, output raster as given by this function is saved to disk
+    debug_output: path where the debugging output images will be saved
     """
     from shapely.geometry import box  # geopandas and shapely become a project dependency only during sample creation
     import geopandas as gpd
@@ -96,7 +97,7 @@ def clip_raster_with_gpkg(raster, gpkg, debug=False):
                      "width": out_img.shape[2],
                      "transform": out_transform})
 
-    out_tif = f"{Path(raster.name).stem}_clipped{Path(raster.name).suffix}"
+    out_tif = f"{Path(debug_output, Path(raster.name).stem)}_clipped{Path(raster.name).suffix}"
     with rasterio.open(out_tif, "w", **out_meta) as dest:
         if debug:
             print(f"DEBUG: writing clipped raster to {out_tif}")

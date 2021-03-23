@@ -17,6 +17,7 @@ def read_parameters(param_file):
     yaml = YAML()
     with open(param_file) as yamlfile:
         params = yaml.load(yamlfile)
+    params.update({'self': {'config_file': param_file}})
     return params
 
 
@@ -28,7 +29,8 @@ def image_reader_as_array(input_image,
                           aux_vector_dist_log=True,
                           aux_vector_scale=None,
                           clip_gpkg=None,
-                          debug=False):
+                          debug=False,
+                          debug_output=''):
     """Read an image from a file and return a 3d array (h,w,c)
     Args:
         input_image: Rasterio file handle holding the (already opened) input raster
@@ -41,12 +43,13 @@ def image_reader_as_array(input_image,
         aux_vector_scale: optional floating point scale factor to multiply to rasterized vector maps
         clip_gpkg: optional path to gpkg used to clip input_image
         debug: if True, output raster as given by clip_raster_with_gpkg function is saved to disk
+        debug_output: path where the debugging output images will be saved
 
     Return:
         numpy array of the image (possibly concatenated with auxiliary vector channels)
     """
     if clip_gpkg:
-        np_array, input_image = clip_raster_with_gpkg(input_image, clip_gpkg, debug=debug)
+        np_array, input_image = clip_raster_with_gpkg(input_image, clip_gpkg, debug=debug, debug_output=debug_output)
     else:
         np_array = input_image.read()
 
