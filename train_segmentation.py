@@ -505,7 +505,10 @@ def main(params, config_path):
             label_props = json.loads(label_prop_obj.read())
             for label_prop in label_props[1:]:
                 for key, val in label_prop['source_label_bincount'].items():
-                    label_props[0]['source_label_bincount'][key] += val
+                    try:
+                        label_props[0]['source_label_bincount'][key] += val
+                    except KeyError:
+                        label_props[0]['source_label_bincount'][key] = val
             total = 0
             for key, val in label_props[0]['source_label_bincount'].items():
                 total += val
