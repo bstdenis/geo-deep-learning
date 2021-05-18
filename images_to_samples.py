@@ -556,7 +556,7 @@ def main(params):
     import json
     import pandas
     with open(Path(samples_folder, f'label_prop.json'), 'w') as label_prop_obj:
-        label_prop_obj.write(json.dumps(label_props))
+        label_prop_obj.write(json.dumps(label_props, indent=4))
     json_df = pandas.read_json(json.dumps(label_props))
     json_df.to_csv(Path(samples_folder, f'label_prop.csv'))
 
