@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.metrics import classification_report
-import torch
 
 min_val = 1e-6
 def create_metrics_dict(num_classes):
@@ -98,8 +97,8 @@ def iou(pred, label, batch_size, num_classes, metric_dict, only_present=True):
     c_label = label == 1
     c_pred = pred == 1
     for i in range(2, num_classes):
-        c_label = torch.logical_or(c_label, label == i)
-        c_pred = torch.logical_or(c_pred, pred == i)
+        c_label = np.logical_or(c_label, label == i)
+        c_pred = np.logical_or(c_pred, pred == i)
     intersection = (c_pred & c_label).float().sum()
     union = (c_pred | c_label).float().sum()
     iou = (intersection + min_val) / (union + min_val)  # minimum value added to avoid Zero division
