@@ -5,6 +5,7 @@ from functools import partial
 import pprint
 
 import mlflow
+import torch
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 
 from utils.readers import read_parameters
@@ -48,6 +49,7 @@ def objective_with_args(a, params, config_path):
         pass
 
     train_main(params, config_path)
+    torch.cuda.empty_cache()
 
     mlflow.end_run()
     mlrun = get_latest_mlrun(params)
