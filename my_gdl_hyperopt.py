@@ -14,7 +14,6 @@ import pprint
 
 import mlflow
 import torch
-# ToDo: Add hyperopt to GDL requirements
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 
 from utils.readers import read_parameters
@@ -85,7 +84,7 @@ def objective_with_args(hparams, params, config_path):
     # ToDo: Probably need some cleanup to avoid accumulating results on disk
 
     # ToDo: This loss should be configurable
-    return {'loss': -mlrun.data.metrics['tst_iou'], 'status': STATUS_OK}
+    return {'loss': -mlrun.data.metrics['tst_iou_nonbg'], 'status': STATUS_OK}
 
 
 def trials_to_csv(trials):
