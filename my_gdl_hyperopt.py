@@ -25,7 +25,12 @@ my_space = {'target_size': hp.choice('target_size', [128, 256]),
             'permanent_water_weight': hp.uniform('permanent_water_weight', 1.0, 10.0),
             'rivers_weight': hp.uniform('rivers_weight', 1.0, 10.0),
             'flood_weight': hp.uniform('flood_weight', 1.0, 10.0),
-            'noise': hp.choice('noise', [0.0, 1.0])}
+            'noise': hp.choice('noise', [0.0, 1.0]),
+            'loss_fn': hp.choice('loss_fn', ['CrossEntropy', 'Lovasz', 'Focal']),
+            'gamma': hp.uniform('gamma', 0.9, 2.0),
+            'rotate_limit': hp.uniform('rotate_limit', 10, 45),
+            'rotate_prob': hp.uniform('rotate_prob', 0.0, 1.0),
+            'hflip_prob': hp.uniform('hflip_prob', 0.0, 1.0)}
 
 
 def get_latest_mlrun(params):
@@ -67,6 +72,11 @@ def objective_with_args(hparams, params, config_path):
     params['training']['class_weights'] = [1.0, hparams['permanent_water_weight'], hparams['rivers_weight'],
                                            hparams['flood_weight']]
     params['training']['augmentation']['noise'] = hparams['noise']
+    params['training']['loss_fn'] = hparams['loss_fn']
+    params['training']['gamma'] = hparams['gamma']
+    params['training']['augmentation']['rotate_limit'] = hparams['rotate_limit']
+    params['training']['augmentation']['rotate_prob'] = hparams['rotate_prob']
+    params['training']['augmentation']['hflip_prob'] = hparams['hflip_prob']
 
     try:
         mlrun = get_latest_mlrun(params)
@@ -84,7 +94,8 @@ def objective_with_args(hparams, params, config_path):
     # ToDo: Probably need some cleanup to avoid accumulating results on disk
 
     # ToDo: This loss should be configurable
-    return {'loss': -mlrun.data.metrics['tst_iou_nonbg'], 'status': STATUS_OK}
+    # return {'loss': -mlrun.data.metrics['tst_iou_nonbg'], 'status': STATUS_OK}
+    return {'loss': -mlrun.data.metrics['tst_iou_nonbg']-mlrun.data.metrics['tst_iou_3'], 'status': STATUS_OK}
 
 
 def trials_to_csv(trials):
